@@ -112,7 +112,7 @@
 	<context-param>
 		<param-name>spring.profiles.active</param-name>
 		<param-value>
-			production,dev
+			production
 		</param-value>
 	</context-param>
 
