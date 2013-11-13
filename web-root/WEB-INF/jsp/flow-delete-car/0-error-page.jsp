@@ -42,13 +42,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								--%>
 								<h4 class="alert-heading">你不能删除车辆！</h4>
 								<br/>
-								<p> 
+								<div>
 									<ul class="unstyled">
 										<c:forEach items="${flowRequestContext.messageContext.allMessages}" var="message">
 										<li>${message.text}</li>
 										</c:forEach>
 									</ul>
-								</p>
+								</div>
 								<p>
 									<button type="submit" name="_eventId" value="cancel" class="btn btn-danger">放 弃</button>
 								</p>
