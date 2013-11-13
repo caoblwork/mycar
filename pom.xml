@@ -7,6 +7,13 @@
 	<version>1.6.0</version>
 
 	<name>my-car Maven Webapp</name>
+	
+	<developers>
+		<developer>
+			<name>应卓</name>
+			<email>yingzhor@gmail.com</email>
+		</developer>
+	</developers>
 
 	<properties>
 		<mycar.version>1.5.16</mycar.version>
