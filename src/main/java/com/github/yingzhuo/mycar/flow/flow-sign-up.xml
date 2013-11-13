@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+	<var name="signUpEmailForm" class="com.github.yingzhuo.mycar.form.SignUpEmailForm" />
+	<var name="signUpProfileForm" class="com.github.yingzhuo.mycar.form.SignUpProfileForm" />
+	<var name="signUpPasswordForm" class="com.github.yingzhuo.mycar.form.SignUpPasswordForm" />
+	<var name="signUpCarForm" class="com.github.yingzhuo.mycar.form.SignUpCarForm" />
+	
+	<decision-state id="preconditionCheckState">
+		<if test="signUpFlowAction.preconditionCheck()" then="emailPage" else="canceled" />
+	</decision-state>
+
+	<view-state id="emailPage" view="flow-sign-up/1-email-page" model="signUpEmailForm">
+		<binder>
+			<binding property="email" />
+		</binder>
+		<transition on="next" to="profilePage" />
+	</view-state>
+
+	<view-state id="profilePage" view="flow-sign-up/2-profile-page" model="signUpProfileForm">
+		<binder>
+			<binding property="name" />
+			<binding property="gender" />
+		</binder>
+		<transition on="next" to="passwordPage" />
+		<transition on="prev" to="emailPage" bind="false" validate="false" />
+	</view-state>
+
+	<view-state id="passwordPage" view="flow-sign-up/3-password-page" model="signUpPasswordForm">
+		<binder>
+			<binding property="password" />
+			<binding property="confirmPassword" />
+		</binder>
+		<transition on="next" to="carPage" />
+		<transition on="prev" to="profilePage" bind="false" validate="false" />
+	</view-state>
+
+	<view-state id="carPage" view="flow-sign-up/4-car-page" model="signUpCarForm">
+		<binder>
+			<binding property="name" />
+			<binding property="brand" />
+			<binding property="type" />
+			<binding property="modelType" />
+			<binding property="numberOfEngine" />
+			<binding property="numberOfFrame" />
+			<binding property="license" />
+		</binder>
+		<transition on="prev" to="passwordPage" bind="false" validate="false" />
+		<transition on="submit" to="confirmed">
+			<evaluate expression="signUpFlowAction.enableSignUpCarForm(signUpCarForm)" />
+		</transition>
+		<transition on="skip" to="confirmed" bind="false" validate="false" />
+	</view-state>
+	
+	<end-state id="confirmed">
+		<on-entry>
+			<evaluate expression="userService.createUser(signUpEmailForm,signUpProfileForm,signUpPasswordForm)" result="flowScope.user" />
+			<evaluate expression="carService.addCar(signUpCarForm,flowScope.user.id)" />
+		</on-entry>
+		<output name="id" value="flowScope.user.id" />
+		<output name="email" value="flowScope.user.email" />
+	</end-state>
+
+	<end-state id="canceled" />
+
+	<global-transitions>
+		<transition on="cancel" to="canceled" bind="false" validate="false" />
+	</global-transitions>
+
+</flow>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	<context:component-scan base-package="com.github.yingzhuo.mycar" >
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
+	
+	<aop:aspectj-autoproxy />
+
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	<bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor" />
+
+	<!-- ============================================ 
+		constantProperties
+	================================================== -->
+	<util:properties id="constantProperties"    location="classpath:META-INF/constant.properties" />
+	<util:properties id="applicationProperties" location="classpath:META-INF/application.properties" />
+
+	<!-- ============================================ 
+		数据绑定相关
+	================================================== -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="basenames">
+			<array>
+				<value>classpath:com/github/yingzhuo/mycar/i18n/error-messages</value>
+			</array>
+		</property>
+	</bean>
+
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="validationMessageSource" ref="messageSource" />
+	</bean>
+
+	<bean id="conversion-service" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<util:set>
+			</util:set>
+		</property>
+		<property name="formatters">
+			<util:set>
+				<bean class="com.github.yingzhuo.mycar.domain.plus.DateRangeFormatAnnotationFormatterFactory" />
+			</util:set>
+		</property>
+		<property name="formatterRegistrars">
+			<util:set>
+				<bean class="org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar">
+					<property name="dateFormatter">
+						<bean class="org.springframework.format.datetime.joda.DateTimeFormatterFactoryBean">
+							<property name="pattern" value="yyyy/MM/dd" />
+						</bean>
+					</property>
+				</bean>
+			</util:set>
+		</property>
+	</bean>
+
+	<bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="propertyEditorRegistrars">
+			<null />
+		</property>
+		<property name="customEditors">
+			<null />
+		</property>
+	</bean>
+
+</beans>

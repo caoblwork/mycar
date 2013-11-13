@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+	<var name="deleteCarReviewForm" class="com.github.yingzhuo.mycar.form.DeleteCarReviewForm"/>
+
+	<input name="carId" required="true" type="int" value="flowScope.carId" />
+	
+	<decision-state id="preconditionCheckState">
+		<if test="deleteCarFlowAction.preconditionCheck(flowScope.carId,messageContext)" then="reviewPage" else="errorPage" />
+	</decision-state>
+	
+	<view-state id="errorPage" view="flow-delete-car/0-error-page" />
+
+	<view-state id="reviewPage" view="flow-delete-car/1-review-page" model="deleteCarReviewForm">
+		<binder>
+			<binding property="carId" />
+			<binding property="carName" />
+		</binder>
+		<on-entry>
+			<set name="requestScope.carId" value="flowScope.carId" />
+		</on-entry>
+		<transition on="submit" to="confirmed" bind="true" validate="true" />
+	</view-state>
+
+	<end-state id="canceled" />
+	<end-state id="confirmed">
+		<on-entry>
+			<evaluate expression="carService.deleteCarById(carId)" />
+		</on-entry>
+	</end-state>
+
+	<global-transitions>
+		<transition on="cancel" to="canceled" bind="false" validate="false" />
+	</global-transitions>
+
+</flow>

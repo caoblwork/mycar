@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/batch"
+		xmlns:beans="http://www.springframework.org/schema/beans"
+		xmlns:util="http://www.springframework.org/schema/util"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+							http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+							http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.2.xsd">
+
+	<beans:bean name="grant-badge-reader" class="org.springframework.batch.item.database.JpaPagingItemReader">
+		<beans:property name="entityManagerFactory" ref="entityManagerFactory" />
+		<beans:property name="queryString">
+			<beans:value>
+				<![CDATA[
+					SELECT DISTINCT u FROM User AS u 
+				]]>
+			</beans:value>
+		</beans:property>
+	</beans:bean>
+	
+	<beans:bean name="grant-badge-processor" class="org.springframework.batch.item.support.CompositeItemProcessor">
+		<beans:property name="delegates">
+			<beans:list>
+				<beans:ref bean="developerBadgeGrantorItemProcessor" />
+				<beans:ref bean="carOwnerBadgeGrantorItemProcessor" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+	
+	<beans:bean name="grant-badge-writer" class="com.github.yingzhuo.mycar.batch.GrantBadgeItemWriter">
+		<beans:property name="userRepo" ref="userRepo" />
+	</beans:bean>
+
+	<job id="grantBadgeJob">
+		<step id="workhorse">
+			<tasklet transaction-manager="transactionManager">
+				<chunk reader="grant-badge-reader"
+						processor="grant-badge-processor"
+						writer="grant-badge-writer"
+						commit-interval="100">
+						<!--
+					<skippable-exception-classes>
+						<include class="org.springframework.dao.DeadlockLoserDataAccessException" />
+					</skippable-exception-classes>
+					<retryable-exception-classes>
+						<include class="org.springframework.dao.DeadlockLoserDataAccessException" />
+						<include class="org.springframework.dao.OptimisticLockingFailureException" />
+						<exclude class="org.springframework.dao.PessimisticLockingFailureException" />
+					</retryable-exception-classes>
+						 -->
+				</chunk>
+			</tasklet>
+		</step>
+	</job>
+
+</beans:beans>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+
+	<property name="LOG_DIR" value="/Users/ying/.mycar_log" />
+	<property name="BATCH_DIR" value="/Users/ying/.mycar_log/batch" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date [%thread] %-5level %logger{36}[%L] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ERROR" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_DIR}/error.log</file>
+		<encoder>
+			<pattern>%date [%thread] %-5level %logger{36}[%L] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="SQL" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_DIR}/sql.log</file>
+		<encoder>
+			<pattern>%date [%thread] %-5level %logger{36}[%L] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="SERVICE" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_DIR}/service.log</file>
+		<encoder>
+			<pattern>%date [%thread] %-5level %logger{36}[%L] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="BATCH_ACTIVE_USERS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${BATCH_DIR}/active-users/active-users.csv</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${BATCH_DIR}/active-users/active-users.%d{yyyy-MM-dd}.csv</fileNamePattern>
+			<maxHistory>365</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- BATCH -->
+	<logger name="batch.active.users" level="DEBUG" additivity="false">
+		<appender-ref ref="BATCH_ACTIVE_USERS" />
+	</logger>
+	
+	<!-- COMMONS -->
+	<logger name="BUSINESS-VALIDATE" level="DEBUG" />
+	<logger name="org.springframework" level="WARN" />
+	<logger name="org.springframework.security" level="DEBUG" />
+	<logger name="org.hibernate" level="WARN" />
+	<logger name="net.sf.ehcache" level="WARN" />
+	<logger name="com.github.yingzhuo.mycar.aop.AssertCarOwnerValidationControllerAspect" level="WARN" />
+
+	<!-- 错误 -->
+	<logger name="com.github.yingzhuo.mycar.controller.ApplicationControllerAdvice" level="WARN" additivity="true">
+		<appender-ref ref="ERROR" />
+	</logger>
+
+	<!-- 服务访问时间 -->
+	<logger name="com.github.yingzhuo.mycar.aop.ServiceLoggingAspect" level="INFO" additivity="false">
+		<appender-ref ref="SERVICE" />
+	</logger>
+
+	<!-- SQL -->
+	<logger name="druid.sql.DataSource" level="DEBUG">
+		<appender-ref ref="SQL" />
+	</logger>
+	<logger name="druid.sql.Connection" level="DEBUG">
+		<appender-ref ref="SQL" />
+	</logger>
+	<logger name="druid.sql.Statement" level="DEBUG">
+		<appender-ref ref="SQL" />
+	</logger>
+	<logger name="druid.sql.ResultSet" level="DEBUG">
+		<appender-ref ref="SQL" />
+	</logger>
+
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>

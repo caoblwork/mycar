@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	<beans profile="production">
+		<util:properties id="jdbcProperties" location="classpath:META-INF/profile-production/data-source.properties" />
+
+		<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+			<property name="url" value="#{jdbcProperties['jdbc.url']}" />
+			<property name="username" value="#{jdbcProperties['jdbc.username']}" />
+			<property name="password" value="#{jdbcProperties['jdbc.password']}" />
+			<property name="maxActive" value="20" />
+			<property name="initialSize" value="1" />
+			<property name="maxWait" value="60000" />
+			<property name="minIdle" value="1" />
+
+			<property name="timeBetweenEvictionRunsMillis" value="3000" />
+			<property name="minEvictableIdleTimeMillis" value="300000" />
+			<property name="validationQuery" value="SELECT 'x'" />
+			<property name="testWhileIdle" value="true" />
+			<property name="testOnBorrow" value="false" />
+			<property name="testOnReturn" value="false" />
+
+			<property name="poolPreparedStatements" value="true" />
+			<property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+			<property name="proxyFilters">
+				<list>
+					<ref bean="druid-stat-filter" />
+					<ref bean="druid-log-filter"/>
+					<ref bean="druid-wall-filter"/>
+				</list>
+			</property>
+		</bean>
+
+		<bean id="druid-stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+    		<property name="slowSqlMillis" value="5000" />
+    		<property name="logSlowSql" value="true" />
+		</bean>
+
+		<bean id="druid-wall-filter" class="com.alibaba.druid.wall.WallFilter">
+			<property name="dbType" value="mysql" />
+			<property name="config">
+				<bean class="com.alibaba.druid.wall.WallConfig" init-method="init">
+					<property name="dir" value="META-INF/druid/wall/mysql" />
+					<property name="noneBaseStatementAllow" value="true" />
+					<property name="createTableAllow" value="true" />
+					<property name="alterTableAllow" value="true" />
+					<property name="dropTableAllow" value="true" />
+					<property name="deleteWhereNoneCheck" value="true" />
+					<property name="updateWhereNoneCheck" value="false" />
+				</bean>
+			</property>
+		</bean>
+
+		<bean id="druid-log-filter" class="com.alibaba.druid.filter.logging.Slf4jLogFilter">
+			<property name="resultSetLogEnabled" value="true" />
+		</bean>
+	</beans>
+
+	<beans profile="init">
+		<jdbc:initialize-database data-source="dataSource">
+			<jdbc:script location="classpath:org/springframework/batch/core/schema-drop-mysql.sql" />
+			<jdbc:script location="classpath:org/springframework/batch/core/schema-mysql.sql" />
+		</jdbc:initialize-database>
+	</beans>
+
+</beans>

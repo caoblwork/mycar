@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.3.xsd">
+
+	<webflow:flow-executor flow-registry="flowRegistry" id="flowExecutor" />
+
+	<webflow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices">
+		<webflow:flow-location path="classpath:com/github/yingzhuo/mycar/flow/flow-sign-up.xml" id="flow-sign-up-id" />
+		<webflow:flow-location path="classpath:com/github/yingzhuo/mycar/flow/flow-delete-car.xml" id="flow-delete-car" />
+	</webflow:flow-registry>
+
+	<webflow:flow-builder-services id="flowBuilderServices"
+		conversion-service="webFlowConversionService"
+		validator="validator"
+		view-factory-creator="mvcViewFactoryCreator"
+		development="false"
+	/>
+
+	<bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+		<property name="viewResolvers">
+			<list>
+				<ref bean="defaultViewResolver" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- ============================================================================================= -->
+	<!--  spring-mvc 与 spring-webflow集成 -->
+	<!-- ============================================================================================= -->
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="order" value="-1"/>
+		<property name="flowRegistry" ref="flowRegistry"/>
+	</bean>
+
+	<!-- ============================================================================================= -->
+	<!--  flow入口	-->
+	<!-- ============================================================================================= -->
+
+	<bean name="user/sign-up" class="com.github.yingzhuo.mycar.flow.handler.SignUpFlowHandler" />
+	<bean name="car/delete"   class="com.github.yingzhuo.mycar.flow.handler.DeleteCarFlowHandler" />
+
+</beans>
