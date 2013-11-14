@@ -595,7 +595,8 @@
 					<password>YingZhuo</password>
 					<encoding>UTF-8</encoding>
 					<srcFiles>
-						<srcFile>src/main/sql/mysql-mycar-20131113.sql</srcFile>
+						<srcFile>src/main/sql/mysql-mycar-drop.sql</srcFile>
+						<srcFile>src/main/sql/mysql-mycar-create.sql</srcFile>
 					</srcFiles>
 				</configuration>
 				<dependencies>
